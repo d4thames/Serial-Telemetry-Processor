@@ -8,7 +8,7 @@ Rotational FIFO buffers for sensor, RC and tuning data.
 
 */
 
-#include "buffer.h"
+#include "inc/buffer.h"
 
 //////////////////
 // 8-Bit Buffer //
