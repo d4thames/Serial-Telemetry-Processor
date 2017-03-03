@@ -17,9 +17,9 @@ typedef struct {
 	uint8_t index;
 	uint8_t outdex;
 } buffer8;
-uint8_t buffer8_pop(buffer8 b);
-void buffer8_add(buffer8 b, uint8_t c);
-int buffer8_rdy(buffer8 b);
+uint8_t buffer8_pop(buffer8* b);
+void buffer8_add(buffer8* b, uint8_t c);
+int buffer8_rdy(buffer8* b);
 
 // 16-Bit Buffer
 typedef struct {
@@ -27,6 +27,6 @@ typedef struct {
 	uint8_t index;
 	uint8_t outdex;
 } buffer16;
-uint16_t buffer16_pop(buffer16 b);
-void buffer16_add(buffer16 b, uint16_t);
-int buffer16_rdy(buffer16 b);
+uint16_t buffer16_pop(buffer16* b);
+void buffer16_add(buffer16* b, uint16_t);
+int buffer16_rdy(buffer16* b);

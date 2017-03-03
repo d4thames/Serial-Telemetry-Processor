@@ -13,8 +13,8 @@ UART1 Serial from PPM Decoder (RC Data)
 SPI   SPI from the IMU
 	MOSI Data from IMU
 	SCK  Clock from IMU
-	~SS  Pull LowUSART0_Rx_vect
-USART0_Rx_vectUSART0_Rx_vect
+	~SS  Pull Low
+
 ** Outputs
 UART0 Serial to Bluetooth Module
 	TODO
@@ -26,54 +26,61 @@ UART0 Serial to Bluetooth Module
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include "buffer.h"
+#include <util/delay.h>
 
-
-#define DDR_SPI DDRB
-#define DD_MISO DDB5
+// #define DDR_SPI DDRB
+// #define DD_MISO DDB5
 
 
 buffer8 b;
 
-ISR(USART0_RX_vect)
-{
-	// RC Data Rx,S put it in the buffer.
-	buffer8_add(b, UDR0);
-}
+// ISR(USART1_RX_vect)
+// {
+// 	// RC Data Rx,S put it in the buffer.
+// 	buffer8_add(b, UDR1);
+// }
 
-ISR(SPI_STC_vect)
-{
-	// SPI Data Rx, put it in the buffer.
-	buffer8_add(b, SPDR);
-}
+// ISR(SPI_STC_vect)
+// {
+// 	// SPI Data Rx, put it in the buffer.
+// 	buffer8_add(b, SPDR);void init_SPI(void)
+// {
+// 	// Set MOSI as an Input
+// 	DDR_SPI = _BV(DD_MISO);
+// 	// Enable SPI
+// 	SPCR =_BV(SPE);
+// }
 
-void init_SPI(void)
-{
-	// Set MISO as an Input
-	DDR_SPI = _BV(DD_MISO);
-	// Enable SPI
-	SPCR =_BV(SPE);
-}
+// }
+
+// void init_SPI(void)
+// {
+// 	// Set MISO as an Input
+// 	DDR_SPI = _BV(DD_MISO);
+// 	// Enable SPI
+// 	SPCR =_BV(SPE);
+// }
 
 void init_UART0(unsigned int baud)
 {
 	// Set Baud Rate
-	UBRR0H = (unsigned char) baud >> 8;
-	UBRR0L = (unsigned char) baud;
+	UBRR0H = (F_CPU/(baud*16L)-1) >> 8;
+	UBRR0L = (F_CPU/(baud*16L)-1);
 	// Enable Tx and Rx
 	UCSR0B = _BV(RXEN0) | _BV(TXEN0);
 	// Set frame: 8 Data, 2 Stop
-	UCSR0C = _BV(USBS0) | (3 << UCSZ00);
+	UCSR1C = _BV(UCSZ01) | _BV(UCSZ00);
 }
 
 void init_UART1(unsigned int baud)
 {
 	// Set Baud Rate
-	UBRR1H = (unsigned char) baud >> 8;
-	UBRR1L = (unsigned char) baud;
+	UBRR1H = (F_CPU/(baud*16L)-1) >> 8;
+	UBRR1L = (F_CPU/(baud*16L)-1);
 	// Enable Tx and Rx
 	UCSR1B = _BV(RXEN1) | _BV(TXEN1);
 	// Set frame: 8 Data, 2 Stop
-	UCSR1C = _BV(USBS1) | (3 << UCSZ10);
+	UCSR1C = _BV(UCSZ11) | _BV(UCSZ10);
 }
 
 int main(void)
@@ -83,16 +90,21 @@ int main(void)
 	/* however, we don't need this. */
 
 	// Initialise Communications
-	init_SPI();
-	init_UART1(14400);
+	// init_SPI();
+	init_UART1(9600);
 	init_UART0(9600);
+	sei();
 	// Loop Forever
 	while (1) {
 		// If the buffer is empty and the UART is not busy then
 		// output the next item from the buffer though UART0.
-		if (buffer8_rdy(b) && (UCSR0A & _BV(RXC0)))
+		if (0); // buffer8_rdy(b)
 		{
-			UDR0 = buffer8_pop(b);
+			//UDR0 = buffer8_pop(b);
+			while (!(UCSR0A & _BV(UDRE0))) continue;
+			UDR0 = 'y';
+			buffer8_pop(b);
+			_delay_ms(500);
 		}
 		// Since
 	}
